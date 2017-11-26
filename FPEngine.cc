@@ -140,6 +140,7 @@
 #include "linear.h"
 #include "FPModel.h"
 #include "tcpip.h"
+#include "utils.h"
 extern NmapOps o;
 #ifdef WIN32
 /* Need DnetName2PcapName */
@@ -1499,6 +1500,9 @@ int FPHost::update_RTO(int measured_rtt_usecs, bool retransmission) {
     this->srtt += (measured_rtt_usecs - this->srtt) >> 3;
     this->rto = this->srtt + MAX(500000, 4*this->rttvar);
   }
+
+  this->rttvar = box(o.minRttTimeout() * 1000, o.maxRttTimeout() * 1000,
+                    this->rttvar);
 
 /* RFC 2988: Whenever RTO is computed, if it is less than 1 second then the RTO
  * SHOULD be rounded up to 1 second.
